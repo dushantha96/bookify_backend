@@ -10,17 +10,15 @@ const chalk = require("chalk");
 const app = express();
 const port = 3000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// MySQL Connection
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "", // Add your MySQL password here
-  database: "hotel_db", // Replace with your database name
+  password: "",
+  database: "hotel_db",
 });
 
 db.connect((err) => {
@@ -31,7 +29,6 @@ db.connect((err) => {
   console.log(chalk.green("Connected to MySQL database."));
 });
 
-// Multer Configuration for File Uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -44,7 +41,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// API: Create Room
 app.post(
   "/api/rooms",
   upload.fields([
@@ -93,7 +89,7 @@ app.post(
         isBooked,
         bookedBy || null,
         parsedBookedDate,
-        price, // New field
+        price,
       ];
 
       db.query(query, values, (err, result) => {
@@ -114,7 +110,6 @@ app.post(
   }
 );
 
-// API: Get All Rooms
 app.get("/api/rooms", (req, res) => {
   const query = "SELECT * FROM rooms";
   db.query(query, (err, results) => {
@@ -126,7 +121,6 @@ app.get("/api/rooms", (req, res) => {
   });
 });
 
-// API: Get Specific Room by ID
 app.get("/api/rooms/:id", (req, res) => {
   const roomId = req.params.id;
   const query = "SELECT * FROM rooms WHERE id = ?";
@@ -146,13 +140,12 @@ app.get("/api/rooms/:id", (req, res) => {
   });
 });
 
-// Reserve Room API
 app.post("/api/reserve-room", (req, res) => {
-  console.log(chalk.blue("API /api/reserve-room called")); // Debug: Endpoint hit
+  console.log(chalk.blue("API /api/reserve-room called"));
 
   const { roomId, bookingDate, userId } = req.body;
 
-  console.log(chalk.green("Request Data:"), { roomId, bookingDate, userId }); // Debug: Request data
+  console.log(chalk.green("Request Data:"), { roomId, bookingDate, userId });
 
   if (!roomId || !bookingDate || !userId) {
     console.log(chalk.red("Validation Error: Missing required fields"));
@@ -161,14 +154,12 @@ app.post("/api/reserve-room", (req, res) => {
       .json({ message: "Room ID, Booking Date, and User ID are required." });
   }
 
-  // Convert bookingDate to Date object for validation
   const selectedDate = new Date(bookingDate);
   if (isNaN(selectedDate.getTime())) {
     console.log(chalk.red("Validation Error: Invalid booking date format"));
     return res.status(400).json({ message: "Invalid booking date format." });
   }
 
-  // Start transaction
   db.beginTransaction((err) => {
     if (err) {
       console.error(chalk.red("Transaction Error:"), err.message);

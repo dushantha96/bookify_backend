@@ -11,14 +11,14 @@ const port = 3000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // MySQL Connection
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "", // Add your MySQL password here
-  database: "hotel_db", // Replace with your database name
+  password: "",
+  database: "hotel_db",
 });
 
 db.connect((err) => {
@@ -63,7 +63,7 @@ app.post(
       } = req.body;
 
       const parsedBookedDate =
-        bookedDate && bookedDate.trim() !== "" ? bookedDate : null; // Convert empty string to null
+        bookedDate && bookedDate.trim() !== "" ? bookedDate : null;
 
       const imageUrl1 = req.files.imageUrl1
         ? `/uploads/${req.files.imageUrl1[0].filename}`
@@ -98,12 +98,10 @@ app.post(
           res.status(500).json({ error: err.message });
           return;
         }
-        res
-          .status(201)
-          .json({
-            message: "Room created successfully",
-            roomId: result.insertId,
-          });
+        res.status(201).json({
+          message: "Room created successfully",
+          roomId: result.insertId,
+        });
       });
     } catch (err) {
       console.error("Unexpected error:", err.message);
@@ -125,7 +123,6 @@ app.get("/api/rooms", (req, res) => {
   });
 });
 
-
 app.get("/api/rooms/:id", (req, res) => {
   const roomId = req.params.id;
   const query = "SELECT * FROM rooms WHERE id = ?";
@@ -142,7 +139,6 @@ app.get("/api/rooms/:id", (req, res) => {
     res.json(results[0]);
   });
 });
-
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
