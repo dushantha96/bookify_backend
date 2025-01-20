@@ -418,6 +418,34 @@ app.get("/complaints", async (req, res) => {
   }
 });
 
+app.get("/api/bookings", (req, res) => {
+  const query = "SELECT * FROM bookings";
+  db.query(query, (err, results) => {
+    if (err) {
+      res.status(500).json({ error: "Internal Server Error" });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+app.delete("/api/bookings/:id", (req, res) => {
+  const bookingId = req.params.id;
+  const query = "DELETE FROM bookings WHERE id = ?";
+  db.query(query, [bookingId], (err, result) => {
+    if (err) {
+      console.error("Error deleting booking:", err.message);
+      res.status(500).json({ error: "Internal Server Error" });
+      return;
+    }
+    if (result.affectedRows === 0) {
+      res.status(404).json({ error: "Booking not found" });
+      return;
+    }
+    res.status(200).json({ message: "Booking deleted successfully" });
+  });
+});
+
 app.post("/api/users/signup", async (req, res) => {
   const { username, email, password, userType } = req.body;
   try {
@@ -520,6 +548,7 @@ app.post("/api/users/login", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
 
 app.listen(port, () => {
   console.log(chalk.cyan(`Server is running on http://localhost:${port}`));
