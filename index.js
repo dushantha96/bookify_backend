@@ -549,7 +549,6 @@ app.post("/api/users/login", async (req, res) => {
   }
 });
 
-
 app.listen(port, () => {
   console.log(chalk.cyan(`Server is running on http://localhost:${port}`));
 });
